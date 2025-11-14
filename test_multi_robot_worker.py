@@ -11,6 +11,7 @@ import numpy as np
 import torch
 from env import Env
 from robot import Robot
+from robot_individual_map_tracker import RobotIndividualMapTracker
 
 
 class TestWorker:
@@ -40,10 +41,21 @@ class TestWorker:
         self.perf_metrics = dict()
         self.max_node_coords = 0
 
+        # Initialize individual map tracker
+        self.individual_map_tracker = RobotIndividualMapTracker(
+            n_agent=self.n_agent,
+            ground_truth_size=self.env.ground_truth_size,
+            sensor_range=self.env.sensor_range,
+            save_dir='robot_individual_maps'
+        )
+
     def run_episode(self, curr_episode):
         """ Run simulation episode for multiple robots """
         done = False
         astar_unsuccessful = False
+
+        # Start tracking individual maps
+        self.individual_map_tracker.start_tracking()
 
         ### Run episode ###
         for step in range(MAX_EPS_STEPS): 
@@ -78,6 +90,13 @@ class TestWorker:
                 if not success: astar_unsuccessful = True; break
                 reward_list.append(reward)
 
+                ### Update individual map for this robot ###
+                self.individual_map_tracker.update_robot_map(
+                    robot_id=robot_id,
+                    robot_position=deciding_robot.robot_position,
+                    ground_truth=self.env.ground_truth
+                )
+
                 ### Update observations + rewards from action ###
                 deciding_robot.observations, success = self.get_observations(deciding_robot.robot_position, robot_id, curr_episode, step, plot=True)
                 if not success: astar_unsuccessful = True; break
@@ -99,6 +118,32 @@ class TestWorker:
             for i in range(len(reward_list)):
                 reward_list[i] += team_reward
                 self.robot_list[i].save_reward_done(reward_list[i], done)
+
+            ### Save current maps to history and output every 10 steps ###
+            self.individual_map_tracker.save_current_maps(self.all_robot_positions)
+
+            if step % 10 == 0:
+                # Save individual maps image every 10 steps
+                self.individual_map_tracker.save_current_frame(step)
+
+                # Calculate and print overlap ratio
+                overlap_stats = self.individual_map_tracker.calculate_overlap()
+                exploration_ratios = self.individual_map_tracker.get_exploration_ratio(self.env.ground_truth)
+
+                print(YELLOW, f"[Step {step}] Individual Exploration Ratios:", NC)
+                for robot_id in range(self.n_agent):
+                    print(f"  Robot {robot_id+1}: {exploration_ratios[robot_id]:.4f}")
+
+                if overlap_stats:
+                    print(YELLOW, f"[Step {step}] Overlap Statistics:", NC)
+                    print(f"  Union Area: {overlap_stats['union_area']}")
+                    print(f"  Intersection Area: {overlap_stats['intersection_area']}")
+                    print(f"  Overall Overlap Ratio: {overlap_stats['overall_overlap_ratio']:.4f}")
+
+                    if 'pairwise_overlaps' in overlap_stats:
+                        print("  Pairwise Overlaps:")
+                        for pair, ratio in overlap_stats['pairwise_overlaps'].items():
+                            print(f"    {pair}: {ratio:.4f}")
 
             ### [Ground Truth] Save a frame to generate gif of robot trajectories ###
             if self.save_image:
@@ -123,6 +168,13 @@ class TestWorker:
         self.perf_metrics['connectivity_rate'] = self.env.connectivity_rate
         self.perf_metrics['agents_connected_percentage'] = self.env.agents_connected_percentage
         self.perf_metrics['travel_steps'] = step + 1
+
+        # Generate coverage plot and save map history
+        self.individual_map_tracker.plot_coverage_over_time(self.env.ground_truth)
+        self.individual_map_tracker.save_map_history(interval=10)
+
+        # Stop tracking
+        self.individual_map_tracker.stop_tracking()
 
         # save merged gif
         if self.save_image:
