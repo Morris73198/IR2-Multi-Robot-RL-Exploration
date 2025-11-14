@@ -204,9 +204,12 @@ class RobotIndividualMapTracker:
 
         return ratios
 
-    def calculate_overlap(self):
+    def calculate_overlap(self, ground_truth=None):
         """
         計算所有機器人探索區域的重疊程度
+
+        參數:
+            ground_truth: 可選的真實地圖，用於計算overlap ratio相對於ground truth的比例
 
         返回:
             dict: 包含重疊統計信息的字典
@@ -234,23 +237,30 @@ class RobotIndividualMapTracker:
 
         intersection_count = np.sum(intersection)
 
-        # 計算兩兩機器人之間的重疊
+        # 如果提供了ground_truth，計算可探索區域總數
+        if ground_truth is not None:
+            total_explorable = np.sum(ground_truth == 255)
+        else:
+            # 如果沒有提供ground_truth，使用union作為分母（向後兼容）
+            total_explorable = union_count if union_count > 0 else 1
+
+        # 計算兩兩機器人之間的重疊（相對於ground truth）
         pairwise_overlaps = {}
         for i in range(self.n_agent):
             for j in range(i+1, self.n_agent):
                 overlap = np.sum(explored_masks[i] & explored_masks[j])
-                pair_union = np.sum(explored_masks[i] | explored_masks[j])
-                overlap_ratio = overlap / pair_union if pair_union > 0 else 0
+                overlap_ratio = overlap / total_explorable if total_explorable > 0 else 0
                 pairwise_overlaps[f'robot{i+1}_robot{j+1}'] = overlap_ratio
 
-        # 計算總體重疊比例
-        overall_overlap_ratio = intersection_count / union_count if union_count > 0 else 0
+        # 計算總體重疊比例（相對於ground truth）
+        overall_overlap_ratio = intersection_count / total_explorable if total_explorable > 0 else 0
 
         return {
             'union_area': union_count,
             'intersection_area': intersection_count,
             'overall_overlap_ratio': overall_overlap_ratio,
-            'pairwise_overlaps': pairwise_overlaps
+            'pairwise_overlaps': pairwise_overlaps,
+            'total_explorable': total_explorable
         }
 
     def plot_coverage_over_time(self, global_ground_truth):

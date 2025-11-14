@@ -127,7 +127,7 @@ class TestWorker:
                 self.individual_map_tracker.save_current_frame(step)
 
                 # Calculate and print overlap ratio
-                overlap_stats = self.individual_map_tracker.calculate_overlap()
+                overlap_stats = self.individual_map_tracker.calculate_overlap(ground_truth=self.env.ground_truth)
                 exploration_ratios = self.individual_map_tracker.get_exploration_ratio(self.env.ground_truth)
 
                 print(YELLOW, f"[Step {step}] Individual Exploration Ratios:", NC)
@@ -136,12 +136,13 @@ class TestWorker:
 
                 if overlap_stats:
                     print(YELLOW, f"[Step {step}] Overlap Statistics:", NC)
+                    print(f"  Total Explorable (Ground Truth): {overlap_stats['total_explorable']}")
                     print(f"  Union Area: {overlap_stats['union_area']}")
                     print(f"  Intersection Area: {overlap_stats['intersection_area']}")
-                    print(f"  Overall Overlap Ratio: {overlap_stats['overall_overlap_ratio']:.4f}")
+                    print(f"  Overall Overlap Ratio (intersection/ground_truth): {overlap_stats['overall_overlap_ratio']:.4f}")
 
                     if 'pairwise_overlaps' in overlap_stats:
-                        print("  Pairwise Overlaps:")
+                        print("  Pairwise Overlaps (overlap/ground_truth):")
                         for pair, ratio in overlap_stats['pairwise_overlaps'].items():
                             print(f"    {pair}: {ratio:.4f}")
 
