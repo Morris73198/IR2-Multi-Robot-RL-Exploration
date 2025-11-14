@@ -119,10 +119,14 @@ RENDEZVOUS_ASTAR_DENSIFY_PATH_RAD=30.0              # At least 1 point along ast
 RENDEZVOUS_ASTAR_MAP_DELTA_INFLATION_RAD=50.0       # Insert map-delta val to points RENDEZVOUS_ASTAR_MAP_DELTA_INFLATION_RAD meters around each astar path point
 RENDEZVOUS_OWN_POSE_NO_UTIL_RAD=30.0                # Set rendezv util around robot to 0 to encourage movement
 
+# --- Spawn Point --- #
+SPAWN_POINT = None  # Set to [x, y] to specify spawn point, or None to use default from map
+# Example: SPAWN_POINT = [100, 100]
+
 # COLORS (for printing)
-RED='\033[1;31m'          
+RED='\033[1;31m'
 GREEN='\033[1;32m'
-YELLOW='\033[1;93m'       
-NC_BOLD='\033[1m' # Bold, No Color 
+YELLOW='\033[1;93m'
+NC_BOLD='\033[1m' # Bold, No Color
 NC='\033[0m' # No Color 
 
