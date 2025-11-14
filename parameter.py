@@ -85,14 +85,14 @@ SS_XG_MAX=13
 SS_K_MIN=0
 SS_K_MAX=13
 
-# --- Graph Params (General) --- # 
-NUM_DENSE_COORDS_WIDTH=50                 # How many node coords across width?
-NUM_DENSE_COORDS_HEIGHT=50                # How many node coords across height?
+# --- Graph Params (General) --- #
+NUM_DENSE_COORDS_WIDTH=30                 # How many node coords across width? (reduced for sparser graph)
+NUM_DENSE_COORDS_HEIGHT=30                # How many node coords across height? (reduced for sparser graph)
 CUR_AGENT_KNN_RAD=80                      # How far current agent's node coords can be saved in dense local coords.
 OTHER_AGENT_KNN_RAD=20                    # How far other agent's node coords can be saved in dense local coords.
 GLOBAL_GRAPH_KNN_RAD=160                  # Global graph max edge length (Should be about 2x sensor range)
-GLOBAL_GRAPH_UNIQUE_RAD=30                # How far apart should graph points be 
-GLOBAL_GRAPH_OFFSHOOT_UNIQUE_RAD=40       # How far apart should offshoot points be
+GLOBAL_GRAPH_UNIQUE_RAD=50                # How far apart should graph points be (increased for sparser graph)
+GLOBAL_GRAPH_OFFSHOOT_UNIQUE_RAD=60       # How far apart should offshoot points be (increased for sparser graph)
 GLOBAL_GRAPH_OFFSHOOT_FRONTIER_NODES=6    # Up to how many nodes to add to offshoots of global graph, per step
 GLOBAL_GRAPH_OFFSHOOT_MAX_RAD=80          # How far offshoot nodes can be from global graph 
 
