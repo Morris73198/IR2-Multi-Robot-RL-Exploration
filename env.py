@@ -190,10 +190,18 @@ class Env():
 
                     dist = np.linalg.norm(all_robot_positions_gt[i] - all_robot_positions_gt[j])
 
+                    # Check if communication limit is disabled or if within range
                     # Proximity / Signal-Strength Based (NOTE: Assume connected = bidirectional communication)
-                    if (USE_SIGNAL_STRENGTH_NOT_PROXIMITY and self.ss_realistic_model.is_within_signal_strength(self.ground_truth, all_robot_positions_gt[i], all_robot_positions_gt[j])) \
-                        or (not USE_SIGNAL_STRENGTH_NOT_PROXIMITY and dist < self.max_comms_proximity):
+                    comms_enabled = False
+                    if DISABLE_COMMS_LIMIT:
+                        # All robots can always communicate
+                        comms_enabled = True
+                    elif USE_SIGNAL_STRENGTH_NOT_PROXIMITY:
+                        comms_enabled = self.ss_realistic_model.is_within_signal_strength(self.ground_truth, all_robot_positions_gt[i], all_robot_positions_gt[j])
+                    else:
+                        comms_enabled = (dist < self.max_comms_proximity)
 
+                    if comms_enabled:
                         self.graph_dict[vertex1].append(vertex2)
                         self.graph_dict[vertex2].append(vertex1)
 
@@ -331,24 +339,26 @@ class Env():
         ###################################################################
 
         ### Removing agents' pose belief if belief within comms range, but cannot comms that agent  ###
-        for other_id in range(len(self.all_robot_positions_belief[robot_id])):
-            if robot_id != other_id and self.all_robot_positions_belief[robot_id][other_id] is not None:
+        # Skip this check if communication limit is disabled (all robots always in range)
+        if not DISABLE_COMMS_LIMIT:
+            for other_id in range(len(self.all_robot_positions_belief[robot_id])):
+                if robot_id != other_id and self.all_robot_positions_belief[robot_id][other_id] is not None:
 
-                if USE_SIGNAL_STRENGTH_NOT_PROXIMITY:
-                    belief_in_comms_range = self.ss_realistic_model.is_within_signal_strength(self.ground_truth, self.all_robot_positions_belief[robot_id][robot_id], self.all_robot_positions_belief[robot_id][other_id])
-                    gt_in_comms_range = self.ss_realistic_model.is_within_signal_strength(self.ground_truth, self.all_robot_positions_gt[robot_id], self.all_robot_positions_gt[other_id])
-                else:
-                    belief_in_comms_range = (np.linalg.norm(self.all_robot_positions_belief[robot_id][other_id] - self.all_robot_positions_belief[robot_id][robot_id]) < self.max_comms_proximity)
-                    gt_in_comms_range = (np.linalg.norm(self.all_robot_positions_gt[other_id] - self.all_robot_positions_gt[robot_id]) < self.max_comms_proximity)
-                if belief_in_comms_range and not gt_in_comms_range:
-                    self.all_robot_positions_missing_counts[robot_id][other_id] += 1
-                elif (belief_in_comms_range and gt_in_comms_range) or (not belief_in_comms_range and gt_in_comms_range):
-                    self.all_robot_positions_missing_counts[robot_id][other_id] = 0
+                    if USE_SIGNAL_STRENGTH_NOT_PROXIMITY:
+                        belief_in_comms_range = self.ss_realistic_model.is_within_signal_strength(self.ground_truth, self.all_robot_positions_belief[robot_id][robot_id], self.all_robot_positions_belief[robot_id][other_id])
+                        gt_in_comms_range = self.ss_realistic_model.is_within_signal_strength(self.ground_truth, self.all_robot_positions_gt[robot_id], self.all_robot_positions_gt[other_id])
+                    else:
+                        belief_in_comms_range = (np.linalg.norm(self.all_robot_positions_belief[robot_id][other_id] - self.all_robot_positions_belief[robot_id][robot_id]) < self.max_comms_proximity)
+                        gt_in_comms_range = (np.linalg.norm(self.all_robot_positions_gt[other_id] - self.all_robot_positions_gt[robot_id]) < self.max_comms_proximity)
+                    if belief_in_comms_range and not gt_in_comms_range:
+                        self.all_robot_positions_missing_counts[robot_id][other_id] += 1
+                    elif (belief_in_comms_range and gt_in_comms_range) or (not belief_in_comms_range and gt_in_comms_range):
+                        self.all_robot_positions_missing_counts[robot_id][other_id] = 0
 
-                if self.all_robot_positions_missing_counts[robot_id][other_id] >= REMOVE_POSE_BELIEF_MISSING_COUNT:
-                    self.all_robot_positions_belief[robot_id][other_id] = None
-                    self.all_robot_belief[robot_id][other_id] = None
-                    self.all_robot_positions_missing_counts[robot_id][other_id] = 0
+                    if self.all_robot_positions_missing_counts[robot_id][other_id] >= REMOVE_POSE_BELIEF_MISSING_COUNT:
+                        self.all_robot_positions_belief[robot_id][other_id] = None
+                        self.all_robot_belief[robot_id][other_id] = None
+                        self.all_robot_positions_missing_counts[robot_id][other_id] = 0
 
         ### Done only if all agents have explored most of the map ###
         done = self.check_done()

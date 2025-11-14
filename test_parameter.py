@@ -62,13 +62,14 @@ log_path = f'{FOLDER_NAME}/test_results/log'
 EMBEDDING_DIM = 128
 INPUT_DIM = 6
 
-# --- Sensor Model --- # 
+# --- Sensor Model --- #
 # SS Reference: https://hal.science/hal-03365129/document
 SENSOR_RANGE=80
-UTILITY_CALC_RANGE=70  
-USE_SIGNAL_STRENGTH_NOT_PROXIMITY=True
-PROXIMITY_COMMS_RANGE_MIN=30
-PROXIMITY_COMMS_RANGE_MAX=150
+UTILITY_CALC_RANGE=70
+USE_SIGNAL_STRENGTH_NOT_PROXIMITY=False  # Changed to False to use proximity model
+DISABLE_COMMS_LIMIT=True  # Set to True to allow all robots to communicate regardless of distance
+PROXIMITY_COMMS_RANGE_MIN=99999  # Effectively infinite communication range
+PROXIMITY_COMMS_RANGE_MAX=99999  # Effectively infinite communication range
 SS_P_T=-20
 SS_THRESH=-70
 SS_GAMMA=2
