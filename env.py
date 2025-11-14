@@ -93,7 +93,11 @@ class Env():
                                                          dist_o=SS_DIST_O, PL_o=SS_PL_O, X_g_min=SS_XG_MIN, X_g_max=SS_XG_MAX, K_min=SS_K_MIN, K_max=SS_K_MAX)
         else:
             # Proximity Comms Model
-            self.max_comms_proximity = np.random.randint(PROXIMITY_COMMS_RANGE_MIN, PROXIMITY_COMMS_RANGE_MAX, 1)[0]  
+            if DISABLE_COMMS_LIMIT or PROXIMITY_COMMS_RANGE_MIN >= PROXIMITY_COMMS_RANGE_MAX:
+                # If comms limit is disabled or range values are equal, use max value
+                self.max_comms_proximity = PROXIMITY_COMMS_RANGE_MAX
+            else:
+                self.max_comms_proximity = np.random.randint(PROXIMITY_COMMS_RANGE_MIN, PROXIMITY_COMMS_RANGE_MAX, 1)[0]  
         
         self.begin()
 
