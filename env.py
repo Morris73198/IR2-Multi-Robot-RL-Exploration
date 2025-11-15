@@ -824,8 +824,16 @@ class Env():
         if self.all_graph_generator[robot_id].frontier_centers is not None:
             centers = self.all_graph_generator[robot_id].frontier_centers
             dummy_vals = np.ones((centers.shape[0]))
-            plt.scatter(centers[:,0], centers[:,1], c=dummy_vals, s=400, alpha=0.5, zorder=4) 
+            plt.scatter(centers[:,0], centers[:,1], c=dummy_vals, s=400, alpha=0.5, zorder=4)
 
+        # Visualize robot's route
+        if robot_id < len(robots_route):
+            route = robots_route[robot_id]
+            xPoints = route[0]
+            yPoints = route[1]
+            robot_marker_color = color_list[robot_id % len(color_list)]
+            plt.plot(xPoints, yPoints, c=robot_marker_color, linewidth=3, zorder=6)
+            plt.plot(xPoints[0], yPoints[0], c=robot_marker_color, marker="o", markersize=8, zorder=6)
 
         plt.suptitle('Explored: {:.1f}%  Distance: {:.1f}\n(Robot{} Belief - {})'.format(self.all_explored_rate[robot_id]*100, travel_dist, robot_id + 1, color_list_text[robot_id]))
         plt.tight_layout()
