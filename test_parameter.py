@@ -13,7 +13,7 @@ TEST_SET_DIR = "DungeonMaps/test/" + TEST_SET_NAME
 
 # Easier maps
 if TEST_SET_NAME == "hybrid" or TEST_SET_NAME == "corridor":
-    MAX_EPS_STEPS=196   
+    MAX_EPS_STEPS=196000   
     K_SIZE = 30
     NUM_ROBOTS_MIN=2
     NUM_ROBOTS_MAX=2
@@ -24,7 +24,7 @@ if TEST_SET_NAME == "hybrid" or TEST_SET_NAME == "corridor":
 
 # Complex maps
 else:
-    MAX_EPS_STEPS=384   
+    MAX_EPS_STEPS=384000  
     K_SIZE = 30
     NUM_ROBOTS_MIN=2
     NUM_ROBOTS_MAX=2
@@ -38,7 +38,7 @@ else:
 
 
 # --- Test Specific --- #
-NUM_TEST = 100                      # Number of runs in this test
+NUM_TEST = 1                      # Number of runs in this test
 NUM_RUN = 1                         # How many times to run this set of tests
 SAVE_TRAJECTORY = False             # Do you want to save per-step metrics 
 SAVE_LENGTH = False                 # Do you want to save per-episode metrics 
@@ -117,7 +117,7 @@ RENDEZVOUS_ASTAR_MAP_DELTA_INFLATION_RAD=50.0       # Insert map-delta val to po
 RENDEZVOUS_OWN_POSE_NO_UTIL_RAD=30.0                # Set rendezv util around robot to 0 to encourage movement
 
 # --- Spawn Point --- #
-SPAWN_POINT = [100, 100] # Set to [x, y] to specify spawn point, or None to use default from map
+SPAWN_POINT = [520, 120] # Set to [x, y] to specify spawn point, or None to use default from map
 # Example: SPAWN_POINT = [100, 100]
 
 # COLORS (for printing)

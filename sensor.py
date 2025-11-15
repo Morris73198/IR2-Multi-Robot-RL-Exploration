@@ -8,10 +8,10 @@ import copy
 
 def collision_check(x0, y0, x1, y1, ground_truth, robot_belief):
     """ Checks if line is blocked by obstacle """
-    x0 = x0.round()
-    y0 = y0.round()
-    x1 = x1.round()
-    y1 = y1.round()
+    x0 = int(x0.round())
+    y0 = int(y0.round())
+    x1 = int(x1.round())
+    y1 = int(y1.round())
     dx, dy = abs(x1 - x0), abs(y1 - y0)
     x, y = x0, y0
     error = dx - dy

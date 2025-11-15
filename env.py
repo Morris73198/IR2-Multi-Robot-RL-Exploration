@@ -882,7 +882,7 @@ class Env():
         # patches = [mpatches.Patch(color=color_list[i], label=color_list_label[i]) for i in range(len(self.all_robot_positions_gt))]
         # plt.legend(handles=patches, bbox_to_anchor=(1.2, 0.7), title="Robots", loc="upper right",  title_fontsize='large')       # fontsize='x-large',  title_fontsize='xx-large'  
 
-        plt.suptitle('Total Explored: {:.1f}%  Max Distance: {:.1f}\n(No Communication Constraints)'.format(self.all_explored_rate[robot_id]*100, travel_dist, robot_id + 1))
+        plt.suptitle('Total Explored: {:.1f}%  Steps: {:.0f}'.format(self.all_explored_rate[robot_id]*100, abs(travel_dist / 2), robot_id + 1))
         plt.tight_layout()
         plt.savefig('{}/eps{}_step{}_merged.png'.format(path, n, step, dpi=150))
         # plt.show()
