@@ -66,13 +66,14 @@ LR = 1e-5
 GAMMA = 0.995
 DECAY_STEP = 256
 
-# --- Sensor Model --- # 
+# --- Sensor Model --- #
 # SS Reference: https://hal.science/hal-03365129/document
 SENSOR_RANGE=80
-UTILITY_CALC_RANGE=70  
-USE_SIGNAL_STRENGTH_NOT_PROXIMITY=True
-PROXIMITY_COMMS_RANGE_MIN=30
-PROXIMITY_COMMS_RANGE_MAX=150
+UTILITY_CALC_RANGE=70
+USE_SIGNAL_STRENGTH_NOT_PROXIMITY=False  # Changed to False to use proximity model
+DISABLE_COMMS_LIMIT=True  # Set to True to allow all robots to communicate regardless of distance
+PROXIMITY_COMMS_RANGE_MIN=99999  # Effectively infinite communication range
+PROXIMITY_COMMS_RANGE_MAX=99999  # Effectively infinite communication range
 SS_P_T=-20
 SS_THRESH=-70
 SS_GAMMA=2
@@ -119,10 +120,14 @@ RENDEZVOUS_ASTAR_DENSIFY_PATH_RAD=30.0              # At least 1 point along ast
 RENDEZVOUS_ASTAR_MAP_DELTA_INFLATION_RAD=50.0       # Insert map-delta val to points RENDEZVOUS_ASTAR_MAP_DELTA_INFLATION_RAD meters around each astar path point
 RENDEZVOUS_OWN_POSE_NO_UTIL_RAD=30.0                # Set rendezv util around robot to 0 to encourage movement
 
+# --- Spawn Point --- #
+SPAWN_POINT = None  # Set to [x, y] to specify spawn point, or None to use default from map
+# Example: SPAWN_POINT = [100, 100]
+
 # COLORS (for printing)
-RED='\033[1;31m'          
+RED='\033[1;31m'
 GREEN='\033[1;32m'
-YELLOW='\033[1;93m'       
-NC_BOLD='\033[1m' # Bold, No Color 
+YELLOW='\033[1;93m'
+NC_BOLD='\033[1m' # Bold, No Color
 NC='\033[0m' # No Color 
 

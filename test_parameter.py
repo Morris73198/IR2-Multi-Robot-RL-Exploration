@@ -8,15 +8,15 @@ sys.modules['TRAINING'] = False           # False = Inference Testing
 
 # --- MAPS --- #
 # TODO: Set train set
-TEST_SET_NAME = "hybrid"        # "hybrid", "corridor", "complex", 
+TEST_SET_NAME = "my1"        # "hybrid", "corridor", "complex", 
 TEST_SET_DIR = "DungeonMaps/test/" + TEST_SET_NAME
 
 # Easier maps
 if TEST_SET_NAME == "hybrid" or TEST_SET_NAME == "corridor":
     MAX_EPS_STEPS=196   
     K_SIZE = 30
-    NUM_ROBOTS_MIN=4
-    NUM_ROBOTS_MAX=4
+    NUM_ROBOTS_MIN=2
+    NUM_ROBOTS_MAX=2
     NODE_COORDS_SCALING_FACTOR=1/640    
     NODE_UTILITY_SCALING_FACTOR=1/50   
     GLOBAL_GRAPH_NODE_COORDS_THRESH=200       # Num node coords before start to perform graph merger
@@ -26,8 +26,8 @@ if TEST_SET_NAME == "hybrid" or TEST_SET_NAME == "corridor":
 else:
     MAX_EPS_STEPS=384   
     K_SIZE = 30
-    NUM_ROBOTS_MIN=5
-    NUM_ROBOTS_MAX=5
+    NUM_ROBOTS_MIN=2
+    NUM_ROBOTS_MAX=2
     NODE_COORDS_SCALING_FACTOR=1/1000   
     NODE_UTILITY_SCALING_FACTOR=1/50    
     GLOBAL_GRAPH_NODE_COORDS_THRESH=340       # Num node coords before start to perform graph merger  
@@ -62,13 +62,14 @@ log_path = f'{FOLDER_NAME}/test_results/log'
 EMBEDDING_DIM = 128
 INPUT_DIM = 6
 
-# --- Sensor Model --- # 
+# --- Sensor Model --- #
 # SS Reference: https://hal.science/hal-03365129/document
-SENSOR_RANGE=80
-UTILITY_CALC_RANGE=70  
-USE_SIGNAL_STRENGTH_NOT_PROXIMITY=True
-PROXIMITY_COMMS_RANGE_MIN=30
-PROXIMITY_COMMS_RANGE_MAX=150
+SENSOR_RANGE=50
+UTILITY_CALC_RANGE=70
+USE_SIGNAL_STRENGTH_NOT_PROXIMITY=False  # Changed to False to use proximity model
+DISABLE_COMMS_LIMIT=True  # Set to True to allow all robots to communicate regardless of distance
+PROXIMITY_COMMS_RANGE_MIN=1000  # Effectively infinite communication range
+PROXIMITY_COMMS_RANGE_MAX=99999  # Effectively infinite communication range
 SS_P_T=-20
 SS_THRESH=-70
 SS_GAMMA=2
@@ -81,12 +82,12 @@ SS_K_MIN=0
 SS_K_MAX=13
 
 # --- Graph Params (General) --- # 
-NUM_DENSE_COORDS_WIDTH=50                 # How many node coords across width?
-NUM_DENSE_COORDS_HEIGHT=50                # How many node coords across height?
+NUM_DENSE_COORDS_WIDTH=25                 # How many node coords across width?
+NUM_DENSE_COORDS_HEIGHT=25                # How many node coords across height?
 CUR_AGENT_KNN_RAD=80                      # How far current agent's node coords can be saved in dense local coords.
 OTHER_AGENT_KNN_RAD=20                    # How far other agent's node coords can be saved in dense local coords.
 GLOBAL_GRAPH_KNN_RAD=160                  # Global graph max edge length (Should be about 2x sensor range)
-GLOBAL_GRAPH_UNIQUE_RAD=30                # How far apart should graph points be 
+GLOBAL_GRAPH_UNIQUE_RAD=50                # How far apart should graph points be 
 GLOBAL_GRAPH_OFFSHOOT_UNIQUE_RAD=40       # How far apart should offshoot points be
 GLOBAL_GRAPH_OFFSHOOT_FRONTIER_NODES=6    # Up to how many nodes to add to offshoots of global graph, per step
 GLOBAL_GRAPH_OFFSHOOT_MAX_RAD=80          # How far offshoot nodes can be from global graph 
@@ -115,10 +116,14 @@ RENDEZVOUS_ASTAR_DENSIFY_PATH_RAD=30.0              # At least 1 point along ast
 RENDEZVOUS_ASTAR_MAP_DELTA_INFLATION_RAD=50.0       # Insert map-delta val to points RENDEZVOUS_ASTAR_MAP_DELTA_INFLATION_RAD meters around each astar path point
 RENDEZVOUS_OWN_POSE_NO_UTIL_RAD=30.0                # Set rendezv util around robot to 0 to encourage movement
 
+# --- Spawn Point --- #
+SPAWN_POINT = [100, 100] # Set to [x, y] to specify spawn point, or None to use default from map
+# Example: SPAWN_POINT = [100, 100]
+
 # COLORS (for printing)
-RED='\033[1;31m'          
+RED='\033[1;31m'
 GREEN='\033[1;32m'
-YELLOW='\033[1;93m'       
-NC_BOLD='\033[1m' # Bold, No Color 
+YELLOW='\033[1;93m'
+NC_BOLD='\033[1m' # Bold, No Color
 NC='\033[0m' # No Color 
 
