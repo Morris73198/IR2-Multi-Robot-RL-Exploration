@@ -50,6 +50,9 @@ class RobotIndividualMapTracker:
         # 是否正在追蹤
         self.is_tracking = False
 
+        # 記錄每個機器人的前一個位置
+        self.prev_positions = [None] * n_agent
+
         # 可視化相關設置
         self.fig = None
         self.axes = None
@@ -67,6 +70,9 @@ class RobotIndividualMapTracker:
         # 清空地圖歷史
         self.maps_history = [[] for _ in range(self.n_agent)]
 
+        # 重置前一個位置記錄
+        self.prev_positions = [None] * self.n_agent
+
         print("開始追蹤機器人個人探索地圖")
 
     def stop_tracking(self):
@@ -78,6 +84,7 @@ class RobotIndividualMapTracker:
     def update_robot_map(self, robot_id, robot_position, ground_truth):
         """
         更新單個機器人的個人探索地圖（使用 sensor_work 函數）
+        沿著移動路徑進行掃描，避免跳躍時出現空白區域
 
         參數:
             robot_id: 機器人ID
@@ -87,13 +94,38 @@ class RobotIndividualMapTracker:
         if not self.is_tracking:
             return
 
-        # 使用 sensor_work 函數更新機器人的個人地圖
-        self.individual_maps[robot_id] = sensor_work(
-            robot_position,
-            self.sensor_range,
-            self.individual_maps[robot_id],
-            ground_truth
-        )
+        # 如果有前一個位置，沿著路徑插值並掃描
+        if self.prev_positions[robot_id] is not None:
+            prev_pos = self.prev_positions[robot_id]
+            curr_pos = robot_position
+
+            # 計算路徑距離
+            path_distance = np.linalg.norm(curr_pos - prev_pos)
+
+            # 每隔 2.0 單位插值一個點（與 sensor_range 相關）
+            num_samples = max(int(path_distance / 2.0), 1)
+
+            # 沿路徑插值並掃描
+            for i in range(num_samples + 1):
+                t = i / max(num_samples, 1)
+                intermediate_position = prev_pos + t * (curr_pos - prev_pos)
+                self.individual_maps[robot_id] = sensor_work(
+                    intermediate_position,
+                    self.sensor_range,
+                    self.individual_maps[robot_id],
+                    ground_truth
+                )
+        else:
+            # 第一次更新，只掃描當前位置
+            self.individual_maps[robot_id] = sensor_work(
+                robot_position,
+                self.sensor_range,
+                self.individual_maps[robot_id],
+                ground_truth
+            )
+
+        # 更新前一個位置記錄
+        self.prev_positions[robot_id] = robot_position.copy()
 
     def save_current_maps(self, robot_positions):
         """
